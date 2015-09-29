@@ -1,22 +1,29 @@
 package main;
 
 import java.awt.Image;
-import java.awt.Graphics;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Map {
 	
-	private int[][] loc = null;
-	private numCell;
-	private Image[][] mapImages = null;
-	
-	public Map(int[][] loc, Image[][] mapImages, int numCell){
-		this.loc = loc;
-		this.mapImages = mapImages;
-		this.numCell = numCell;
+	public Map(String fileName) throws IOException{
+		readFile(fileName);
 	}
 	
-	private void drawMap(Graphics g){
-		
+	private static void readFile(String fileName) throws IOException {
+		File file = new File(fileName);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		try{
+			String read = null;
+			while ((read = reader.readLine()) != null){
+				System.out.println(read);
+			}
+			reader.close();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 		
 }
