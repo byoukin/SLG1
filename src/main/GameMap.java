@@ -19,13 +19,10 @@ public class GameMap extends JFrame {
 	private Image forest = tk.getImage(this.getClass().getResource("/main/cells/forest.png"));
 	private Image river = tk.getImage(this.getClass().getResource("/main/cells/river.png"));
 	private Image castle = tk.getImage(this.getClass().getResource("/main/cells/castle.png"));
+	private Image[] cells = null;
 	
 	public GameMap(String fileName) throws IOException{
-		setSize(2560,1440);
-		setVisible(true);
-		
 		stage = fileName;
-		
 	}
 	
 	public void paint(Graphics g){
@@ -55,7 +52,6 @@ public class GameMap extends JFrame {
 			while ((read = reader.readLine()) != null){
 				mapCell[count] = read;
 				count++;
-			//	System.out.println(read);
 			}
 			reader.close();
 		}catch (Exception e){
@@ -66,20 +62,27 @@ public class GameMap extends JFrame {
 	
 	public void drawMap(String maps, Graphics g) throws IOException{
 		String[] map = readFile(maps);
+		cells = new Image[map.length*map[0].length()];
 		int count = 0;
 		if (map != null){
 			for (int i = 0; i < map.length; i++){
-				System.out.print(map[i]==null);
 				for (int j = 0; j < map[i].length(); j++){
-				//	System.out.println(count++);
+					Image img = null;
 					if (map[i].charAt(j) == 'G')
-						g.drawImage(ground, 100+50*j, 100+50*i, this);
+						img = ground;
 					else if (map[i].charAt(j) == 'M')
-						g.drawImage(mountain, 100+50*j, 100+50*i, this);
+						img = mountain;
 					else if (map[i].charAt(j) == 'R')
-						g.drawImage(river, 100+50*j, 100+50*i, this);
+						img = river;
+					
+					g.drawImage(img, 100+50*j, 100+50*i, this);
+					cells[i*(map.length)+j] = img;
 				}
 			}
-		}	
+		}
+	}
+	
+	public Image[] getCells(){
+		return cells;
 	}
 }
