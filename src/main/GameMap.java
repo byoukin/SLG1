@@ -2,41 +2,39 @@ package main;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
 import javax.swing.JFrame;
 
 public class GameMap extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	private String stage = null;
-	private Toolkit tk = Toolkit.getDefaultToolkit();
-	private Image mountain = tk.getImage(this.getClass().getResource("/main/cells/mountain.png"));
-	private Image ground = tk.getImage(this.getClass().getResource("/main/cells/ground.png"));
-	private Image forest = tk.getImage(this.getClass().getResource("/main/cells/forest.png"));
-	private Image river = tk.getImage(this.getClass().getResource("/main/cells/river.png"));
-	private Image castle = tk.getImage(this.getClass().getResource("/main/cells/castle.png"));
-	private Image[] cells = null;
-	
+	private ImageLoader loader = new ImageLoader();
+	private BufferedImage mountain = loader.loadImage("/main/cells/mountain.png");
+	private BufferedImage ground = loader.loadImage("/main/cells/ground.png");
+	private BufferedImage forest = loader.loadImage("/main/cells/forest.png");
+	private BufferedImage river = loader.loadImage("/main/cells/river.png");
+	private BufferedImage castle = loader.loadImage("/main/cells/castle.png");
+	private BufferedImage[][] cells = null;
+	private Player[][] players = null;
 	public GameMap(String fileName) throws IOException{
 		stage = fileName;
 	}
 	
 	public void paint(Graphics g){
 		try {
-			drawMap(getStage(),g);
+			drawMap(stage,g);
+			drawPlayer(stage,g);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		repaint();
 	}
 	
-	public void update(Graphics g){
-		paint(g);
-	}
 	
 	public String getStage(){
 		return stage;
@@ -44,7 +42,7 @@ public class GameMap extends JFrame {
 	
 	public String[] readFile(String fileName) throws IOException {
 		File file = new File(fileName);
-		String mapCell[] = new String[10];
+		String mapCell[] = new String[14];
 		int count = 0;
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		try{
@@ -62,27 +60,54 @@ public class GameMap extends JFrame {
 	
 	public void drawMap(String maps, Graphics g) throws IOException{
 		String[] map = readFile(maps);
-		cells = new Image[map.length*map[0].length()];
+		cells = new BufferedImage[map.length][map[0].length()];
 		int count = 0;
 		if (map != null){
 			for (int i = 0; i < map.length; i++){
 				for (int j = 0; j < map[i].length(); j++){
-					Image img = null;
-					if (map[i].charAt(j) == 'G')
+					BufferedImage img = null;
+					char c = map[i].charAt(j);
+					switch (c){
+					case 'G':
 						img = ground;
-					else if (map[i].charAt(j) == 'M')
+						break;
+					case 'M':
 						img = mountain;
-					else if (map[i].charAt(j) == 'R')
+						break;
+					case 'R':
 						img = river;
-					
-					g.drawImage(img, 100+50*j, 100+50*i, this);
-					cells[i*(map.length)+j] = img;
+						break;
+					}
+					cells[i][j] = img;
+					g.drawImage(cells[i][j], 5+50*j, 5+50*i, this);
 				}
 			}
 		}
 	}
 	
-	public Image[] getCells(){
+	public void drawPlayer(String playerList, Graphics g) throws IOException{
+		players = new Player[cells[0].length][cells.length];
+		for (int i = 0; i < players.length; i++)
+			for (int j = 0; j < players[0].length; j++){
+				players[i][j] = null;
+			}
+		players[0][2] = new Player(5, 105, "hero");
+		players[0][2].render(g);	
+		players[1][2] = new Player(55, 105, "hero");
+		players[1][2].render(g);
+	}
+	
+	public BufferedImage[][] getCells(){
 		return cells;
+	}
+	
+	public Player[][] getPlayers(){
+		return players;
+	}
+	
+	public boolean isOccupied(int x, int y){
+		if (players[x/50][y/50] != null)
+			return true;
+		return false;
 	}
 }
