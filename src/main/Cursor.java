@@ -22,7 +22,7 @@ public class Cursor {
 	}
 	
 	public void render(Graphics g){
-		g.drawImage(cursor, (int)x, (int)y, null);
+		g.drawImage(cursor, x, y, null);
 	}
 	
 	public int getX(){
@@ -33,11 +33,13 @@ public class Cursor {
 		return y;
 	}
 	
-	public void setX(int n){
+	public int setX(int n){
 		x = n;
+		return x;
 	}
 	
-	public void setY(int n){
+	public int setY(int n){
 		y = n;
+		return y;
 	}
 }

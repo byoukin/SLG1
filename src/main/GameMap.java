@@ -13,17 +13,24 @@ import javax.swing.JFrame;
 public class GameMap extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	private String stage = null;
+	private String stage, chars;
 	private ImageLoader loader = new ImageLoader();
 	private BufferedImage mountain = loader.loadImage("/main/cells/mountain.png");
 	private BufferedImage ground = loader.loadImage("/main/cells/ground.png");
 	private BufferedImage forest = loader.loadImage("/main/cells/forest.png");
 	private BufferedImage river = loader.loadImage("/main/cells/river.png");
 	private BufferedImage castle = loader.loadImage("/main/cells/castle.png");
-	private BufferedImage[][] cells = null;
-	private Player[][] players = null;
-	public GameMap(String fileName) throws IOException{
-		stage = fileName;
+	private BufferedImage[][] cells;
+	private Player[][] players;
+	private boolean started;
+	public GameMap(String stageName, String charSet) throws IOException{
+		stage = stageName;
+		chars = charSet;
+		started = false;
+	}
+	
+	public void update(){
+		
 	}
 	
 	public void paint(Graphics g){
@@ -61,7 +68,6 @@ public class GameMap extends JFrame {
 	public void drawMap(String maps, Graphics g) throws IOException{
 		String[] map = readFile(maps);
 		cells = new BufferedImage[map.length][map[0].length()];
-		int count = 0;
 		if (map != null){
 			for (int i = 0; i < map.length; i++){
 				for (int j = 0; j < map[i].length(); j++){
@@ -86,15 +92,33 @@ public class GameMap extends JFrame {
 	}
 	
 	public void drawPlayer(String playerList, Graphics g) throws IOException{
-		players = new Player[cells[0].length][cells.length];
-		for (int i = 0; i < players.length; i++)
-			for (int j = 0; j < players[0].length; j++){
-				players[i][j] = null;
+		if (!started){
+			String[] people = readFile(playerList);
+			players = new Player[people.length][people[0].length()];
+			players[0][0] = new Player(5, 5, "hero");
+			players[0][0].render(g);
+			if (people != null){
+				for (int i = 0; i < people.length; i++){
+					for (int j = 0; j < people[i].length(); j++){
+						char c = people[i].charAt(j);
+						switch (c){
+						case 'P':
+							System.out.println("!!!!!!!!!");
+							players[i][j] = new Player(j*50+5, i*50+5, "hero");
+							players[i][j].render(g);
+							break;
+						}
+					}
+				}
 			}
-		players[0][2] = new Player(5, 105, "hero");
-		players[0][2].render(g);	
-		players[1][2] = new Player(55, 105, "hero");
-		players[1][2].render(g);
+			started = true;			
+		}else{
+			for (int i = 0; i < players.length; i++)
+				for (int j = 0; j < players[0].length; j++){
+					if (players[i][j] != null)
+						players[i][j].render(g);
+				}
+		}
 	}
 	
 	public BufferedImage[][] getCells(){
@@ -109,5 +133,10 @@ public class GameMap extends JFrame {
 		if (players[x/50][y/50] != null)
 			return true;
 		return false;
+	}
+	
+	public void updatePlayerLocation(int ox, int oy, int x, int y){
+		players[x/50][y/50] = players[ox/50][oy/50];
+		players[ox/50][oy/50] = null;
 	}
 }

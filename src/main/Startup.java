@@ -15,24 +15,33 @@ public class Startup extends Canvas implements Runnable{
 	public static final int HEIGHT = WIDTH / 16 * 9;
 //	public static final int SCALE = 2;
 	public static final String TITLE = "Pixel Strategy";
-	private StartMenu sm = new StartMenu();
+	private StartMenu menu;
 	private Thread thread;
 	private GameMap map1;
 	private Boolean run = false;
-	private Cursor cursor = new Cursor();
-	private BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+	private Cursor cursor;
+	private BufferedImage bi;
+	
 	private enum PHASE{
 		TITLE,
 		SELECT,
 		GAME
 	};
-	private PHASE phase = PHASE.TITLE;
+	
+	private enum SELECTED{
+		PLAYER,
+		ENEMY,
+		MAP
+	};
+	
+	private PHASE phase;
+	private SELECTED selected;
 	private static final long serialVersionUID = -52208218690144130L;
 	
 	
 	public Startup(){
 		try {
-			map1 = new GameMap ("bin/main/maps/stage1.txt");
+			map1 = new GameMap ("bin/main/maps/stage1.txt", "bin/main/maps/char1.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -55,7 +64,8 @@ public class Startup extends Canvas implements Runnable{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.exit(1);
+		System.exit(0);
+		
 	}
 	
 	public void init(){
@@ -73,6 +83,11 @@ public class Startup extends Canvas implements Runnable{
 		}*/
 		
 		addKeyListener(new Keyboard(this));
+		menu = new StartMenu();
+		cursor = new Cursor();
+		bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		phase = PHASE.TITLE;
+		selected = SELECTED.MAP;
 	}
 	
 	public void run(){
@@ -107,21 +122,21 @@ public class Startup extends Canvas implements Runnable{
 	}
 	
 	public static void main(String args[]) throws IOException{
-		Startup su = new Startup();	
+		Startup start = new Startup();	
 		
-		su.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		start.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 //		su.setMaximumSize(new Dimension(2560, 1440));
 //		su.setMinimumSize(new Dimension(WIDTH, HEIGHT));
 		
-		JFrame jf = new JFrame(su.TITLE);
-		jf.add(su);
-		jf.pack();
-		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jf.setResizable(false);
-		jf.setLocationRelativeTo(null);
-		jf.setVisible(true);
+		JFrame frame = new JFrame(start.TITLE);
+		frame.add(start);
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 		
-		su.start();
+		start.start();
 		
 	}
 
@@ -138,7 +153,7 @@ public class Startup extends Canvas implements Runnable{
 		////draw here
 		g.drawImage(bi, 0, 0, getWidth(),getHeight(),this);
 		if (phase == PHASE.TITLE){
-			sm.paintTitle(g);
+			menu.paintTitle(g);
 		}else if (phase == PHASE.GAME){
 			map1.paint(g);
 			cursor.render(g);
@@ -152,6 +167,8 @@ public class Startup extends Canvas implements Runnable{
 	
 	
 	public void keyPressed(KeyEvent e){
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+			exit();
 		if (phase == PHASE.TITLE){
 			int key = e.getKeyCode();
 			switch(key){
@@ -159,28 +176,41 @@ public class Startup extends Canvas implements Runnable{
 					phase = PHASE.GAME;
 			}
 		}else if (phase == PHASE.GAME){
-			int key = e.getKeyCode();
 			int x = cursor.getX();
 			int y = cursor.getY();
+			int key = e.getKeyCode();
+			Player currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
 			switch(key){
 				case KeyEvent.VK_RIGHT:
-					if(cursor.getX() + 100 <= WIDTH)
-						cursor.setX(cursor.getX() + 50);
+					if(x + 100 <= WIDTH)
+						x = cursor.setX(x + 50);				
 					break;
 				case KeyEvent.VK_LEFT:
-					if(cursor.getX() - 50 >= 5)
-						cursor.setX(cursor.getX() - 50);
+					if(x - 50 >= 5)
+						x = cursor.setX(x - 50);
 					break;
 				case KeyEvent.VK_UP:
-					if(cursor.getY() - 50 >= 5)
-						cursor.setY(cursor.getY() - 50);
+					if(y - 50 >= 5)
+						y = cursor.setY(y - 50);
 					break;
 				case KeyEvent.VK_DOWN:
-					if(cursor.getY() + 100 <= HEIGHT)
-						cursor.setY(cursor.getY() + 50);
-					
+					if(y + 100 <= HEIGHT)
+						y = cursor.setY(y + 50);
 					break;
-			}	
+				case KeyEvent.VK_Z:
+					if(currentPlayer != null)
+						selected = SELECTED.PLAYER;
+					break;
+				case KeyEvent.VK_X:
+					if(selected == SELECTED.PLAYER)
+						selected = SELECTED.MAP;
+					break;
+			}
+			if (selected == SELECTED.PLAYER && currentPlayer != null){
+				System.out.println(currentPlayer.getX() + " " + currentPlayer.getY());
+				map1.updatePlayerLocation(currentPlayer.getX(), currentPlayer.getY(), x, y);
+			}
+				
 		}
 		
 	}

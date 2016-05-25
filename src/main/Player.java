@@ -11,11 +11,16 @@ public class Player {
 	private ImageLoader loader = new ImageLoader();
 	private BufferedImage player;
 	
-	public Player(int x, int y, String name) throws IOException{
+	public Player(int x, int y, String name){
 		this.x = x;
 		this.y = y;
 		String path = "/main/UI/" + name + ".png";
-		player = loader.loadImage(path);
+		try{
+			player = loader.loadImage(path);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public void update(){
