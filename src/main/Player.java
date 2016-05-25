@@ -10,10 +10,12 @@ public class Player {
 	private int y;
 	private ImageLoader loader = new ImageLoader();
 	private BufferedImage player;
+	private String name;
 	
 	public Player(int x, int y, String name){
 		this.x = x;
 		this.y = y;
+		this.name = name;
 		String path = "/main/UI/" + name + ".png";
 		try{
 			player = loader.loadImage(path);
@@ -48,6 +50,10 @@ public class Player {
 	
 	public boolean selected(){
 		return false;
+	}
+	
+	public String getName(){
+		return name;
 	}
 }
 

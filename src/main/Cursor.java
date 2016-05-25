@@ -5,8 +5,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Cursor {
-	private int x = 5;
-	private int y = 5;
+	private int x;
+	private int y;
 	private ImageLoader loader = new ImageLoader();
 	private BufferedImage cursor;
 	

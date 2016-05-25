@@ -11,8 +11,8 @@ import java.io.IOException;
 import javax.swing.JFrame;
 
 public class Startup extends Canvas implements Runnable{
-	public static final int WIDTH = 1280;
-	public static final int HEIGHT = WIDTH / 16 * 9;
+	public static final int WIDTH = 1250;
+	public static final int HEIGHT = 700;
 //	public static final int SCALE = 2;
 	public static final String TITLE = "Pixel Strategy";
 	private StartMenu menu;
@@ -21,6 +21,7 @@ public class Startup extends Canvas implements Runnable{
 	private Boolean run = false;
 	private Cursor cursor;
 	private BufferedImage bi;
+	private Player currentPlayer;
 	
 	private enum PHASE{
 		TITLE,
@@ -179,36 +180,49 @@ public class Startup extends Canvas implements Runnable{
 			int x = cursor.getX();
 			int y = cursor.getY();
 			int key = e.getKeyCode();
-			Player currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
 			switch(key){
+				case KeyEvent.VK_P:
+					phase = PHASE.TITLE;
+					break;
 				case KeyEvent.VK_RIGHT:
-					if(x + 100 <= WIDTH)
+					if(x + 100 <= WIDTH && ((!map1.isOccupied(x+50, y) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
 						x = cursor.setX(x + 50);				
 					break;
 				case KeyEvent.VK_LEFT:
-					if(x - 50 >= 5)
+					if(x - 50 >= 0 && ((!map1.isOccupied(x-50, y) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
 						x = cursor.setX(x - 50);
 					break;
 				case KeyEvent.VK_UP:
-					if(y - 50 >= 5)
+					if(y - 50 >= 0 && ((!map1.isOccupied(x, y-50) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
 						y = cursor.setY(y - 50);
 					break;
 				case KeyEvent.VK_DOWN:
-					if(y + 100 <= HEIGHT)
+					if(y + 100 <= HEIGHT && ((!map1.isOccupied(x, y+50) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
 						y = cursor.setY(y + 50);
 					break;
 				case KeyEvent.VK_Z:
-					if(currentPlayer != null)
+					if(currentPlayer == null && map1.isOccupied(x, y)){
 						selected = SELECTED.PLAYER;
+						currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
+					}			
 					break;
 				case KeyEvent.VK_X:
-					if(selected == SELECTED.PLAYER)
+					if(selected == SELECTED.PLAYER){
 						selected = SELECTED.MAP;
+						currentPlayer = null;
+					}	
 					break;
 			}
 			if (selected == SELECTED.PLAYER && currentPlayer != null){
-				System.out.println(currentPlayer.getX() + " " + currentPlayer.getY());
-				map1.updatePlayerLocation(currentPlayer.getX(), currentPlayer.getY(), x, y);
+				int tempX = currentPlayer.getX();
+				int tempY = currentPlayer.getY();
+				currentPlayer.setX(x);
+				currentPlayer.setY(y);
+				
+				map1.getPlayers()[x/50][y/50] = new Player(x, y, currentPlayer.getName());
+				if (tempX != x || tempY != y){
+					map1.getPlayers()[tempX/50][tempY/50] = null;
+				}		
 			}
 				
 		}

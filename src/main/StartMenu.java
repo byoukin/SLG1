@@ -29,7 +29,7 @@ class StartMenu extends JFrame {
 		Graphics2D g2d = (Graphics2D) g.create();
 		Font tFont = new Font("Arial", Font.BOLD, 45);
 		g2d.setFont(tFont);
-		g2d.drawImage(title,5,5,this);
+		g2d.drawImage(title,0,0,this);
 		g2d.drawString("PRESS ENTER", 475, 550);
 	}
 	

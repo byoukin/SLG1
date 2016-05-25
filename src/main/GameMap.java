@@ -36,7 +36,7 @@ public class GameMap extends JFrame {
 	public void paint(Graphics g){
 		try {
 			drawMap(stage,g);
-			drawPlayer(stage,g);
+			drawPlayer(chars,g);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +85,7 @@ public class GameMap extends JFrame {
 						break;
 					}
 					cells[i][j] = img;
-					g.drawImage(cells[i][j], 5+50*j, 5+50*i, this);
+					g.drawImage(cells[i][j], 50*j, 50*i, this);
 				}
 			}
 		}
@@ -94,31 +94,30 @@ public class GameMap extends JFrame {
 	public void drawPlayer(String playerList, Graphics g) throws IOException{
 		if (!started){
 			String[] people = readFile(playerList);
-			players = new Player[people.length][people[0].length()];
-			players[0][0] = new Player(5, 5, "hero");
-			players[0][0].render(g);
+			players = new Player[people[0].length()][people.length];
 			if (people != null){
 				for (int i = 0; i < people.length; i++){
 					for (int j = 0; j < people[i].length(); j++){
 						char c = people[i].charAt(j);
 						switch (c){
 						case 'P':
-							System.out.println("!!!!!!!!!");
-							players[i][j] = new Player(j*50+5, i*50+5, "hero");
-							players[i][j].render(g);
+							players[j][i] = new Player(j*50, i*50, "hero");
+							players[j][i].render(g);
 							break;
 						}
 					}
 				}
-			}
-			started = true;			
+			}	
 		}else{
 			for (int i = 0; i < players.length; i++)
-				for (int j = 0; j < players[0].length; j++){
-					if (players[i][j] != null)
+				for (int j = 0; j < players[0].length; j++){	
+					if (players[i][j] != null){
 						players[i][j].render(g);
+					}
+						
 				}
 		}
+		started = true;
 	}
 	
 	public BufferedImage[][] getCells(){
@@ -133,10 +132,5 @@ public class GameMap extends JFrame {
 		if (players[x/50][y/50] != null)
 			return true;
 		return false;
-	}
-	
-	public void updatePlayerLocation(int ox, int oy, int x, int y){
-		players[x/50][y/50] = players[ox/50][oy/50];
-		players[ox/50][oy/50] = null;
 	}
 }
