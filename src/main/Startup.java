@@ -14,7 +14,6 @@ import javax.swing.JFrame;
 public class Startup extends Canvas implements Runnable{
 	public static final int WIDTH = 1250;
 	public static final int HEIGHT = 700;
-//	public static final int SCALE = 2;
 	public static final String TITLE = "Pixel Strategy";
 	private StartMenu menu;
 	private Thread thread;
@@ -23,11 +22,13 @@ public class Startup extends Canvas implements Runnable{
 	private Cursor cursor;
 	private BufferedImage bi;
 	private Player currentPlayer;
+	private Status status;
 	
 	private enum PHASE{
 		TITLE,
 		SELECT,
-		GAME
+		GAME,
+		STATUS
 	};
 	
 	private enum SELECTED{
@@ -71,19 +72,6 @@ public class Startup extends Canvas implements Runnable{
 	}
 	
 	public void init(){
-//		ImageLoader loader = new ImageLoader();
-//		try{
-//			hero = loader.loadImage("/main/UI/hero.png");
-//		}catch(IOException e){
-//			e.printStackTrace();
-//		}
-		
-/*		try {
-			p = new Player(5,5,"hero");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
 		addKeyListener(new Keyboard(this));
 		menu = new StartMenu();
 		cursor = new Cursor();
@@ -156,23 +144,28 @@ public class Startup extends Canvas implements Runnable{
 		g.drawImage(bi, 0, 0, getWidth(),getHeight(),this);
 		if (phase == PHASE.TITLE){
 			menu.paintTitle(g);
+		}else if (phase == PHASE.STATUS && status != null){
+			status.paintStatus(g);
 		}else if (phase == PHASE.GAME){
 			map1.paint(g);
 			cursor.render(g);
 		}
-		////
-		
 		g.dispose();
 		bs.show();
 		
 	}
-	
 	
 	public void keyPressed(KeyEvent e){
 		if (phase == PHASE.TITLE){
 			int key = e.getKeyCode();
 			switch(key){
 				case KeyEvent.VK_ENTER:
+					phase = PHASE.GAME;
+			}
+		}else if(phase == PHASE.STATUS){
+			int key = e.getKeyCode();
+			switch(key){
+				case KeyEvent.VK_R:
 					phase = PHASE.GAME;
 			}
 		}else if (phase == PHASE.GAME){
@@ -200,18 +193,25 @@ public class Startup extends Canvas implements Runnable{
 						y = cursor.setY(y + 50);
 					break;
 				case KeyEvent.VK_Z:
-					if(currentPlayer == null && map1.isOccupied(x, y) && currentPlayer.side()){
-						selected = SELECTED.PLAYER;
+					if(currentPlayer == null && map1.isOccupied(x, y)){
 						currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
-					}
-//					if (currentPlayer == null && map1.isOccupied(x, y) && !currentPlayer.side())
-//						System.out.println("Archer");
+						if (currentPlayer.side())
+							selected = SELECTED.PLAYER;
+						else
+							currentPlayer = null;
+					}					
 					break;
 				case KeyEvent.VK_X:
-					if(selected == SELECTED.PLAYER){
+					if(selected == SELECTED.PLAYER || selected == SELECTED.ENEMY){
 						selected = SELECTED.MAP;
 						currentPlayer = null;
 					}	
+					break;
+				case KeyEvent.VK_R:
+					if(currentPlayer == null && map1.isOccupied(x, y) && selected == SELECTED.MAP && phase == PHASE.GAME){
+						phase = PHASE.STATUS;
+						status = new Status(map1.getPlayers()[cursor.getX()/50][cursor.getY()/50]);
+					}
 					break;
 			}
 			if (selected == SELECTED.PLAYER && currentPlayer != null && currentPlayer.side()){
@@ -220,7 +220,7 @@ public class Startup extends Canvas implements Runnable{
 				currentPlayer.setX(x);
 				currentPlayer.setY(y);
 				
-				map1.getPlayers()[x/50][y/50] = new Player(x, y, currentPlayer.getName(), currentPlayer.side());
+				map1.getPlayers()[x/50][y/50] = new Hero(x, y, currentPlayer.getName(), currentPlayer.side());
 				if (tempX != x || tempY != y){
 					map1.getPlayers()[tempX/50][tempY/50] = null;
 				}		

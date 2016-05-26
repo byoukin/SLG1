@@ -1,10 +1,7 @@
 package main;
 
 import javax.swing.JFrame;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,10 +16,6 @@ class StartMenu extends JFrame {
 //	private Image select = tk.getImage(this.getClass().getResource("/main/UI/select.png"));
 
 	public StartMenu(){
-	}
-	
-	public synchronized int event(KeyEvent e){
-		return e.getKeyCode();
 	}
 	
 	public void paintTitle(Graphics g){

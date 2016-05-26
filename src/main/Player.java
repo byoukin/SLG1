@@ -6,12 +6,14 @@ import java.io.IOException;
 
 public class Player {
 	
-	private int x;
-	private int y;
-	private ImageLoader loader = new ImageLoader();
-	private BufferedImage player;
-	private String name;
-	private boolean side;
+	protected int x;
+	protected int y;
+	protected ImageLoader loader = new ImageLoader();
+	protected BufferedImage player;
+	protected String name, className, charName;
+	protected boolean side;
+	protected int hp, str, def, skl, spd, mov, lvl, exp;
+	protected boolean sword, lance, axe, bow;
 	
 	public Player(int x, int y, String name, boolean side){
 		this.x = x;
@@ -60,6 +62,27 @@ public class Player {
 	
 	public String getName(){
 		return name;
+	}
+	
+	public String getClassName(){
+		return className;
+	}
+	
+	public void setExp(int e){
+		exp += e;
+	}
+	
+	public int getHp(){return hp;}
+	public int getStr(){return str;}
+	public int getDef(){return def;}
+	public int getSkl(){return skl;}
+	public int getSpd(){return spd;}
+	public int getMov(){return mov;}
+	public int getLvl(){return lvl;}
+	public int getExp(){return exp;}
+	public String getCharName(){return charName;}
+	public BufferedImage getImage(){
+		return player;
 	}
 }
 
