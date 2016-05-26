@@ -85,7 +85,7 @@ public class GameMap extends JFrame {
 						break;
 					}
 					cells[i][j] = img;
-					g.drawImage(cells[i][j], 50*j, 50*i, this);
+					g.drawImage(cells[i][j], img.getWidth()*j, img.getHeight()*i, this);
 				}
 			}
 		}
@@ -101,9 +101,13 @@ public class GameMap extends JFrame {
 						char c = people[i].charAt(j);
 						switch (c){
 						case 'P':
-							players[j][i] = new Player(j*50, i*50, "hero");
+							players[j][i] = new Player(j*50, i*50, "hero", true);
 							players[j][i].render(g);
 							break;
+//						case 'A':
+//							players[j][i] = new Player(j*50, i*50, "archer", false);
+//							players[j][i].render(g);
+//							break;
 						}
 					}
 				}

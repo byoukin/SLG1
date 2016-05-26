@@ -1,7 +1,7 @@
 package main;
 
 import java.awt.Image;
-public class Archer extends Chars {
+public class Archer extends Player {
 
 	//Specs of Archer
 	int hp = 25;
@@ -14,9 +14,10 @@ public class Archer extends Chars {
 	boolean sword = false;
 	boolean axe = false;
 	boolean bow = true;
+	boolean side;
 	
 	
-	public Archer(String name, String className, Image icon, int side, int x, int y, String[] inventory) {
-		super(name, className, icon, side, x, y, inventory);
+	public Archer(int x, int y, String name, boolean side) {
+		super(x, y, name, side);
 	}
 }

@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Canvas;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -133,10 +134,10 @@ public class Startup extends Canvas implements Runnable{
 		frame.add(start);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
+		System.out.println(start.getWidth() + " " + start.getHeight());
 		start.start();
 		
 	}
@@ -168,8 +169,6 @@ public class Startup extends Canvas implements Runnable{
 	
 	
 	public void keyPressed(KeyEvent e){
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-			exit();
 		if (phase == PHASE.TITLE){
 			int key = e.getKeyCode();
 			switch(key){
@@ -201,10 +200,12 @@ public class Startup extends Canvas implements Runnable{
 						y = cursor.setY(y + 50);
 					break;
 				case KeyEvent.VK_Z:
-					if(currentPlayer == null && map1.isOccupied(x, y)){
+					if(currentPlayer == null && map1.isOccupied(x, y) && currentPlayer.side()){
 						selected = SELECTED.PLAYER;
 						currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
-					}			
+					}
+//					if (currentPlayer == null && map1.isOccupied(x, y) && !currentPlayer.side())
+//						System.out.println("Archer");
 					break;
 				case KeyEvent.VK_X:
 					if(selected == SELECTED.PLAYER){
@@ -213,13 +214,13 @@ public class Startup extends Canvas implements Runnable{
 					}	
 					break;
 			}
-			if (selected == SELECTED.PLAYER && currentPlayer != null){
+			if (selected == SELECTED.PLAYER && currentPlayer != null && currentPlayer.side()){
 				int tempX = currentPlayer.getX();
 				int tempY = currentPlayer.getY();
 				currentPlayer.setX(x);
 				currentPlayer.setY(y);
 				
-				map1.getPlayers()[x/50][y/50] = new Player(x, y, currentPlayer.getName());
+				map1.getPlayers()[x/50][y/50] = new Player(x, y, currentPlayer.getName(), currentPlayer.side());
 				if (tempX != x || tempY != y){
 					map1.getPlayers()[tempX/50][tempY/50] = null;
 				}		

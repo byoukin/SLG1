@@ -11,11 +11,13 @@ public class Player {
 	private ImageLoader loader = new ImageLoader();
 	private BufferedImage player;
 	private String name;
+	private boolean side;
 	
-	public Player(int x, int y, String name){
+	public Player(int x, int y, String name, boolean side){
 		this.x = x;
 		this.y = y;
 		this.name = name;
+		this.side = side;
 		String path = "/main/UI/" + name + ".png";
 		try{
 			player = loader.loadImage(path);
@@ -26,6 +28,10 @@ public class Player {
 	}
 	
 	public void update(){
+	}
+	
+	public boolean side(){
+		return side;
 	}
 	
 	public void render(Graphics g){
