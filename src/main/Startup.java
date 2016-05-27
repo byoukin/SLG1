@@ -23,6 +23,7 @@ public class Startup extends Canvas implements Runnable{
 	private BufferedImage bi;
 	private Player currentPlayer;
 	private Status status;
+	private Options option;
 	
 	private enum PHASE{
 		TITLE,
@@ -147,7 +148,9 @@ public class Startup extends Canvas implements Runnable{
 		}else if (phase == PHASE.STATUS && status != null){
 			status.paintStatus(g);
 		}else if (phase == PHASE.GAME){
-			map1.paint(g);
+			map1.paint(g);			
+			if (option != null)
+				option.paint(g);
 			cursor.render(g);
 		}
 		g.dispose();
@@ -177,26 +180,53 @@ public class Startup extends Canvas implements Runnable{
 					phase = PHASE.TITLE;
 					break;
 				case KeyEvent.VK_RIGHT:
-					if(x + 100 <= WIDTH && ((!map1.isOccupied(x+50, y) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
-						x = cursor.setX(x + 50);				
+					if(option == null && x + 100 <= WIDTH
+							&& ((!map1.isOccupied(x+50, y) && selected == SELECTED.PLAYER)
+							|| selected == SELECTED.MAP)){
+						x = cursor.setX(x + 50);
+						charMove(x, y);
+					}
+									
 					break;
 				case KeyEvent.VK_LEFT:
-					if(x - 50 >= 0 && ((!map1.isOccupied(x-50, y) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
+					if(option == null && x - 50 >= 0 
+							&& ((!map1.isOccupied(x-50, y) && selected == SELECTED.PLAYER)
+							|| selected == SELECTED.MAP)){
 						x = cursor.setX(x - 50);
+						charMove(x, y);
+					}
+						
 					break;
 				case KeyEvent.VK_UP:
-					if(y - 50 >= 0 && ((!map1.isOccupied(x, y-50) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
+					if (option != null){
+						if (y > 50)
+							y = cursor.setY(y - 50);
+					}else if(y - 50 >= 0
+							&& ((!map1.isOccupied(x, y-50) && selected == SELECTED.PLAYER)
+							|| (selected == SELECTED.MAP))){
 						y = cursor.setY(y - 50);
+						charMove(x, y);
+					}			
 					break;
 				case KeyEvent.VK_DOWN:
-					if(y + 100 <= HEIGHT && ((!map1.isOccupied(x, y+50) && selected == SELECTED.PLAYER) || selected == SELECTED.MAP))
+					if (option != null){
+						if (y < option.length()*50)
+							y = cursor.setY(y + 50);
+					}else if(y + 100 <= HEIGHT 
+							&& ((!map1.isOccupied(x, y+50) && selected == SELECTED.PLAYER) 
+							|| selected == SELECTED.MAP)){
 						y = cursor.setY(y + 50);
+						charMove(x, y);
+					}	
 					break;
 				case KeyEvent.VK_Z:
 					if(currentPlayer == null && map1.isOccupied(x, y)){
 						currentPlayer = map1.getPlayers()[cursor.getX()/50][cursor.getY()/50];
-						if (currentPlayer.side())
+						if (currentPlayer.side()){
 							selected = SELECTED.PLAYER;
+							option = new Options(currentPlayer);
+							goToOption(option);
+						}	
 						else
 							currentPlayer = null;
 					}					
@@ -204,7 +234,17 @@ public class Startup extends Canvas implements Runnable{
 				case KeyEvent.VK_X:
 					if(selected == SELECTED.PLAYER || selected == SELECTED.ENEMY){
 						selected = SELECTED.MAP;
+						option = null;
+						try {
+							cursor.changeImage(new ImageLoader().loadImage("/main/UI/cursor.png"));
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						cursor.setX(currentPlayer.getX());
+						cursor.setY(currentPlayer.getY());
 						currentPlayer = null;
+						
 					}	
 					break;
 				case KeyEvent.VK_R:
@@ -214,20 +254,38 @@ public class Startup extends Canvas implements Runnable{
 					}
 					break;
 			}
-			if (selected == SELECTED.PLAYER && currentPlayer != null && currentPlayer.side()){
-				int tempX = currentPlayer.getX();
-				int tempY = currentPlayer.getY();
-				currentPlayer.setX(x);
-				currentPlayer.setY(y);
-				
-				map1.getPlayers()[x/50][y/50] = new Hero(x, y, currentPlayer.getName(), currentPlayer.side());
-				if (tempX != x || tempY != y){
-					map1.getPlayers()[tempX/50][tempY/50] = null;
-				}		
-			}
+			
 				
 		}
 		
+	}
+	
+	public void goToOption(Options option){
+		if (option != null){
+			cursor.setX(option.getX());
+			cursor.setY(option.getY());
+			try {
+				cursor.changeImage(new ImageLoader().loadImage("/main/UI/cursorL.png"));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	public void charMove(int x, int y){
+		if (selected == SELECTED.PLAYER && currentPlayer != null && currentPlayer.side() && option.canMove()){
+			int tempX = currentPlayer.getX();
+			int tempY = currentPlayer.getY();
+			currentPlayer.setX(x);
+			currentPlayer.setY(y);
+			
+			
+			map1.getPlayers()[x/50][y/50] = new Hero(x, y, currentPlayer.getName(), currentPlayer.side());
+			if (tempX != x || tempY != y){
+				map1.getPlayers()[tempX/50][tempY/50] = null;
+			}		
+		}
 	}
 		
 	public void keyReleased(KeyEvent e){

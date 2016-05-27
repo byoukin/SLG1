@@ -18,7 +18,8 @@ public class Cursor {
 		}
 	}
 	
-	public void update(){
+	public void changeImage(BufferedImage img){
+		cursor = img;
 	}
 	
 	public void render(Graphics g){
